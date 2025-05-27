@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Human Behavior</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #3498db 0%, #6dd5fa 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .container {
+        width: 420px;
+        background: #ffffff;
+        padding: 30px 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+      #question-text {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 25px;
+        color: #333;
+        padding: 14px 20px;
+        background-color: #e3f2fd;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        display: inline-block;
+        max-width: 100%;
+        line-height: 1.4;
+        user-select: none;
+      }
+      .btn-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 15px;
+      }
+      button {
+        padding: 12px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background-color: #3498db;
+        color: white;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+      }
+      button:hover {
+        background-color: #2980b9;
+        transform: scale(1.02);
+      }
+      button:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+      }
+      .correct {
+        background-color: #2ecc71 !important;
+      }
+      .wrong {
+        background-color: #e74c3c !important;
+      }
+      .answer-btn:last-of-type {
+        margin-bottom: 10px;
+      }
+      #question-number {
+        margin-bottom: 15px;
+        font-size: 16px;
+        color: #666;
+        font-weight: 500;
+      }
+      #result-box {
+        margin-top: 20px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #2c3e50;
+        padding: 12px;
+        background-color: #dfefff;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+      .hide {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 id="quiz-title">Human Behavior</h2>
+
+      <div id="start-box">
+        <button id="start-btn">Start</button>
+      </div>
+      <div id="quiz-box" class="hide">
+        <div id="question-number"></div>
+        <div id="question-text"></div>
+        <div id="answer-buttons" class="btn-grid"></div>
+        <button id="next-btn" disabled>Next</button>
+      </div>
+      <div id="result-box" class="hide">
+        <h3>Your Score:</h3>
+        <p id="score-text"></p>
+        <button id="try-again-btn">Try Again</button>
+      </div>
+    </div>
+
+    <script>
+      const allQuestions = [
+        {
+          question: "What is human behavior broadly defined as?",
+          options: [
+            "A genetic trait inherited from parents",
+            "Manner of acting or controlling oneself",
+            "A fixed response to environmental stimuli",
+            "Only conscious actions",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which of the following is NOT a component of human behavior?",
+          options: ["Actions", "Emotions", "Genetics", "Cognitions"],
+          correctIndex: 2,
+        },
+        {
+          question:
+            "Which theory suggests that behavior is learned through interactions with the environment?",
+          options: [
+            "Developmental theory",
+            "Conditioning theory",
+            "Sociocultural theory",
+            "Behaviorism",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What does nonverbal behavior include?",
+          options: [
+            "Written language",
+            "Body language and facial gestures",
+            "Verbal expressions",
+            "Logical reasoning",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which of the following is an example of overt behavior?",
+          options: [
+            "Hidden cultural beliefs",
+            "A child crying when hungry",
+            "Suppressed emotions",
+            "Unconscious habits",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What are predisposing factors in behavior?",
+          options: [
+            "Environmental barriers",
+            "Characteristics that motivate behavior before it occurs",
+            "Immediate rewards for actions",
+            "Environmental resources",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which neurotransmitter imbalance is linked to mood and behavior?",
+          options: ["Dopamine", "Serotonin", "Adrenaline", "Insulin"],
+          correctIndex: 1,
+        },
+        {
+          question: "What does abnormal behavior refer to?",
+          options: [
+            "Typical actions in society",
+            "Actions that deviate from the norm",
+            "Learned habits",
+            "Involuntary reflexes",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which factor includes social norms and peer pressure?",
+          options: [
+            "Biological factors",
+            "Psychological factors",
+            "Sociocultural factors",
+            "Genetic factors",
+          ],
+          correctIndex: 2,
+        },
+        {
+          question: "What is an example of an enabling factor?",
+          options: [
+            "Personal beliefs",
+            "Availability of healthcare",
+            "Rewards for good behavior",
+            "Age",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which type of behavior is performed suddenly without control?",
+          options: ["Voluntary", "Involuntary", "Conscious", "Covert"],
+          correctIndex: 1,
+        },
+        {
+          question: "What does the developmental theory emphasize?",
+          options: [
+            "Conditioning through rewards",
+            "Changes in behavior across life stages",
+            "Genetic determinism",
+            "Unconscious motives",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which of the following is a reinforcing factor?",
+          options: [
+            "Age",
+            "Peer approval",
+            "Brain chemistry",
+            "Cultural traditions",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What is an example of covert behavior?",
+          options: [
+            "Public speaking",
+            "Crying in response to pain",
+            "Hidden cultural practices",
+            "Test malpractices",
+          ],
+          correctIndex: 2,
+        },
+        {
+          question:
+            "Which component of behavior involves thoughts and beliefs?",
+          options: ["Actions", "Emotions", "Cognitions", "Physiology"],
+          correctIndex: 2,
+        },
+        {
+          question: "What does voluntary behavior imply?",
+          options: [
+            "Uncontrollable reactions",
+            "Actions performed willingly",
+            "Genetic reflexes",
+            "Actions performed by force",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which factor includes family and social networks?",
+          options: [
+            "Biological",
+            "Psychological",
+            "Sociocultural",
+            "Neurological",
+          ],
+          correctIndex: 2,
+        },
+        {
+          question: "What is the purpose of behavior in communication?",
+          options: [
+            "To suppress emotions",
+            "To use body language and gestures",
+            "To avoid social interaction",
+            "To eliminate thoughts",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Which theory focuses on conditioning through rewards and punishments?",
+          options: [
+            "Behaviorism",
+            "Developmental theory",
+            "conditioning theory",
+            "Sociocultural theory",
+          ],
+          correctIndex: 0,
+        },
+        {
+          question: "What is an example of unconscious behavior?",
+          options: [
+            "Deliberate decision-making",
+            "Foot-tapping due to anxiety",
+            "Reading a book",
+            "Following a diet plan",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which factor relates to brain chemistry and hormones?",
+          options: [
+            "Psychological",
+            "Biological",
+            "Sociocultural",
+            "Environmental",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "What does operant conditioning involve?",
+          options: [
+            "Learning through association",
+            "Learning through rewards/punishments",
+            "Genetic inheritance",
+            "Cultural traditions",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which behavior is independent of formal language?",
+          options: ["Verbal", "Nonverbal", "Conscious", "Overt"],
+          correctIndex: 1,
+        },
+        {
+          question: "What influences behavior through institutional rules?",
+          options: [
+            "Biological factors",
+            "Sociocultural factors",
+            "Psychological factors",
+            "Genetic factors",
+          ],
+          correctIndex: 1,
+        },
+        {
+          question: "Which of the following is a feature of normal behavior?",
+          options: [
+            "Deviation from societal norms",
+            "Expected actions in a given society",
+            "Uncontrollable reactions",
+            "Hidden motives",
+          ],
+          correctIndex: 1,
+        },
+
+        // True/False questions
+        {
+          question: "Human behavior is solely determined by genetics.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Nonverbal behavior includes facial expressions and gestures.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question:
+            "Classical conditioning involves learning through rewards and punishments.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Abnormal behavior always indicates mental illness.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Reinforcing factors include peer influence and social rewards.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question: "Covert behavior is easily observable by others.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question:
+            "Personality traits are part of psychological factors in behavior.",
+          options: ["True", "False"],
+          correctIndex: 0,
+        },
+        {
+          question: "Involuntary behavior is performed with full control.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Cultural norms do not affect human behavior.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+        {
+          question: "Emotions have no influence on decision-making.",
+          options: ["True", "False"],
+          correctIndex: 1,
+        },
+      ];
+
+      let currentQuestionIndex = 0;
+      let score = 0;
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+      shuffleArray(allQuestions);
+
+      const startBtn = document.getElementById("start-btn");
+      const nextBtn = document.getElementById("next-btn");
+      const tryAgainBtn = document.getElementById("try-again-btn");
+      const quizBox = document.getElementById("quiz-box");
+      const startBox = document.getElementById("start-box");
+      const questionNumberElement = document.getElementById("question-number");
+      const questionText = document.getElementById("question-text");
+      const answerButtons = document.getElementById("answer-buttons");
+      const resultBox = document.getElementById("result-box");
+      const scoreText = document.getElementById("score-text");
+
+      startBtn.addEventListener("click", startQuiz);
+      nextBtn.addEventListener("click", () => {
+        currentQuestionIndex++;
+        setNextQuestion();
+      });
+      tryAgainBtn.addEventListener("click", startQuiz);
+
+      function startQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        startBox.classList.add("hide");
+        resultBox.classList.add("hide");
+        quizBox.classList.remove("hide");
+        setNextQuestion();
+      }
+
+      function setNextQuestion() {
+        resetState();
+        if (currentQuestionIndex < allQuestions.length) {
+          showQuestion(allQuestions[currentQuestionIndex]);
+        } else {
+          showResult();
+        }
+      }
+
+      function showQuestion(questionObj) {
+        questionNumberElement.textContent = `Question ${
+          currentQuestionIndex + 1
+        } of ${allQuestions.length}`;
+        questionText.textContent = questionObj.question;
+
+        questionObj.options.forEach((option, index) => {
+          const button = document.createElement("button");
+          button.textContent = option;
+          button.classList.add("answer-btn");
+          button.addEventListener("click", () =>
+            selectAnswer(button, index === questionObj.correctIndex)
+          );
+          answerButtons.appendChild(button);
+        });
+      }
+
+      function resetState() {
+        nextBtn.disabled = true;
+        answerButtons.innerHTML = "";
+      }
+
+      function selectAnswer(button, isCorrect) {
+        const buttons = answerButtons.querySelectorAll("button");
+        buttons.forEach((btn) => {
+          btn.disabled = true;
+        });
+
+        if (isCorrect) {
+          button.classList.add("correct");
+          score++;
+        } else {
+          button.classList.add("wrong");
+          const correctButton =
+            buttons[allQuestions[currentQuestionIndex].correctIndex];
+          correctButton.classList.add("correct");
+        }
+
+        nextBtn.disabled = false;
+      }
+
+      function showResult() {
+        quizBox.classList.add("hide");
+        resultBox.classList.remove("hide");
+        scoreText.textContent = `${score} out of ${allQuestions.length} correct`;
+      }
+    </script>
+  </body>
+</html>
